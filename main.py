@@ -2,7 +2,7 @@ import os
 import re
 from google.cloud import translate_v2 as translate
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS']='./gcp/platzi-translator-credentials.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS']='./gcp/credentials.json'
 GOOGLE_API_MAX_LENGTH = 10000
 
 # Files paths
