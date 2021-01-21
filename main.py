@@ -54,16 +54,22 @@ def chunk_list(some_list, n_chunks):
         wrapper_list.append(some_list[index_accumulator_initial:index_accumulator_final])
         index_accumulator_initial, index_accumulator_final = index_accumulator_final, index_accumulator_final + general_chunk_size
 
-def translate_text_list(text_list):
+def translate_text_list(text_list, option):
     translate_client = translate.Client()
-    translated_text_list_raw = translate_client.translate(text_list, source_language='en', target_language='es')
+    translated_text_list_raw = []
+
+    if (option == 1):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='en', target_language='es')
+    elif (option == 2):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='es', target_language='en')
+
     translated_text_list = []
     for line in translated_text_list_raw:
         translated_text_list.append(line['translatedText'])
     return translated_text_list
 
 
-def run():
+def run(option):
     for input_file in INPUT_FILES:
         minute_list = []
         text_list = []
@@ -83,19 +89,39 @@ def run():
             qty_divisions = text_size // GOOGLE_API_MAX_LENGTH + 1
             translated_text_list = []
             for chunk in chunk_list(text_list, qty_divisions):
-                chunk = translate_text_list(chunk)
+                chunk = translate_text_list(chunk, option)
                 translated_text_list += chunk
         else:
-            translated_text_list = translate_text_list(text_list)
+            translated_text_list = translate_text_list(text_list, option)
 
         srt_minute_list = vttmin_to_srtmin(minute_list)
 
-        output_file_en = re.match(r'\w+', input_file).group(0) + '_en.srt'
-        output_file_es = re.match(r'\w+', input_file).group(0) + '_es.srt'
+        input_language = False
+        output_language = False
+        if (option == 1):
+            input_language = '_en.srt'
+            output_language = '_es.srt'
+        elif(option == 2):
+            input_language = '_es.srt'
+            output_language = '_en.srt'
 
-        write_srt_file(output_file_en, srt_minute_list, text_list)
-        write_srt_file(output_file_es, srt_minute_list, translated_text_list)
+        output_file_one = re.match(r'\w+', input_file).group(0) + input_language
+        output_file_two = re.match(r'\w+', input_file).group(0) + output_language
+
+        write_srt_file(output_file_one, srt_minute_list, text_list)
+        write_srt_file(output_file_two, srt_minute_list, translated_text_list)
 
 
 if __name__ == "__main__":
-    run()
+    option = 0
+    while True:
+        print("""
+        Introduce el número de la opción:
+        1. Traducir de Inglés a Español
+        2. Traducir de Español a Inglés
+        """)
+        option = int(input())
+        if (option == 1 or option == 2):
+            break
+
+    run(option)
