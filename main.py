@@ -15,7 +15,7 @@ INPUT_FILES = os.listdir(VTT_PATH)
 # Regex
 MINUTE_LINE = re.compile(r'^[\d\.:]+ --> [\d\.:]+')
 MINUTE = re.compile(r'([\d\.:]+) --> ([\d\.:]+)')
-TEXT_LINE = re.compile(r'^[\w\"\'].*$')
+TEXT_LINE = re.compile(r'^[\w\"\'¿].*$')
 
 def vttmin_to_srtmin(minute_list):
     srt_minute_list = []
@@ -29,7 +29,7 @@ def vttmin_to_srtmin(minute_list):
         srt_minute_list.append(srt_line)
     return srt_minute_list
 
-def write_srt_file(output_file, minute_list, text_list):
+def write_srt_file(output_file, minute_list, text_list):    
     with open(os.path.join(SRT_PATH, output_file), 'w', encoding='utf-8') as srt:
         for i in range(len(minute_list)):
             srt.write(f'{i + 1}')
@@ -61,7 +61,15 @@ def translate_text_list(text_list, option):
     if (option == 1):
         translated_text_list_raw = translate_client.translate(text_list, source_language='en', target_language='es')
     elif (option == 2):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='en', target_language='pt')
+    elif (option == 3):
         translated_text_list_raw = translate_client.translate(text_list, source_language='es', target_language='en')
+    elif (option == 4):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='es', target_language='pt')
+    elif (option == 5):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='pt', target_language='en')
+    elif (option == 6):
+        translated_text_list_raw = translate_client.translate(text_list, source_language='pt', target_language='es')
 
     translated_text_list = []
     for line in translated_text_list_raw:
@@ -96,14 +104,27 @@ def run(option):
 
         srt_minute_list = vttmin_to_srtmin(minute_list)
 
-        input_language = False
-        output_language = False
+        input_language = None
+        output_language = None
+
         if (option == 1):
             input_language = '_en.srt'
             output_language = '_es.srt'
-        elif(option == 2):
+        elif (option == 2):
+            input_language = '_en.srt'
+            output_language = '_pt.srt'
+        elif (option == 3):
             input_language = '_es.srt'
             output_language = '_en.srt'
+        elif (option == 4):
+            input_language = '_es.srt'
+            output_language = '_pt.srt'
+        elif (option == 5):
+            input_language = '_pt.srt'
+            output_language = '_en.srt'
+        elif (option == 6):
+            input_language = '_pt.srt'
+            output_language = '_es.srt'
 
         output_file_one = re.match(r'\w+', input_file).group(0) + input_language
         output_file_two = re.match(r'\w+', input_file).group(0) + output_language
@@ -116,12 +137,16 @@ if __name__ == "__main__":
     option = 0
     while True:
         print("""
-        Introduce el número de la opción:
-        1. Traducir de Inglés a Español
-        2. Traducir de Español a Inglés
+        Select an option:
+        1. English to Spanish
+        2. English to Portuguese
+        3. Spanish to English
+        4. Spanish to Portuguese
+        5. Portuguese to English
+        6. Portuguese to Spanish
         """)
         option = int(input())
-        if (option == 1 or option == 2):
+        if (option > 0 and option < 7):
             break
 
     run(option)
